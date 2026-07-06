@@ -87,3 +87,19 @@ jobs:
     - name: Deploy Ingress Routing Layer
       run:
         kubectl apply -f k8s-ingress.yml
+- name: Parse Configuration & Compile Templates
+      run: |
+        # 1. Parse the env file variables
+        export APP_NAME=$(grep APP_NAME active-config.env | cut -d '=' -f2)
+        export CONTAINER_PORT=$(grep CONTAINER_PORT active-config.env | cut -d '=' -f2)
+        export INGRESS_NAME=$(grep INGRESS_NAME active-config.env | cut -d '=' -f2)
+        export DOCKERHUB_USERNAME=$(grep DOCKERHUB_USERNAME active-config.env | cut -d '=' -f2)
+
+        # 2. Compile the templates
+        envsubst < k8s-service.tmpl.yml > k8s-service.yml
+        envsubst < k8s-ingress.tmpl.yml > k8s-ingress.yml
+
+        # 3. Apply changes to GKE Autopilot
+        kubectl apply -f k8s-service.yml
+        kubectl apply -f k8s-ingress.yml
+        kubectl rollout restart deployment/$APP_NAME-deployment
