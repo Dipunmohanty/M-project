@@ -87,7 +87,7 @@ jobs:
     - name: Deploy Ingress Routing Layer
       run:
         kubectl apply -f k8s-ingress.yml
-- name: Parse Configuration & Compile Templates
+    - name: Parse Configuration & Compile Templates
       run: |
         # 1. Parse the env file variables
         export APP_NAME=$(grep APP_NAME active-config.env | cut -d '=' -f2)
