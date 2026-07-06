@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - 500</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fcfcfc;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            max-width: 500px;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #dc2626; /* Crimson Red for server errors */
+            line-height: 1;
+            margin-bottom: 15px;
+            position: relative;
+            animation: glitch 1s linear infinite;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #111827;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        /* Subtle glitch/shake effect to imply a technical hiccup */
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-container">
+        <div class="error-code">500</div>
+        <h1 class="error-title">Something went wrong</h1>
+        <p class="error-message">
+            Our servers are experiencing an internal hiccup. We are trying to fix it, and have a nice day.
+        </p>
+    </div>
+
+</body>
+</html>
