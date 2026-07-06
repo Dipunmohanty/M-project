@@ -34,11 +34,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # 1. Write the kubeconfig data to the workspace profile
     - name: Set up Kubeconfig Context
       uses: azure/k8s-set-context@v4
       with:
         method: kubeconfig
         kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
+
+    # 2. Automatically inject the missing gke-gcloud-auth-plugin tool
+    - name: Set up GKE Auth Plugin
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
+        location: ${{ secrets.GCP_REGION }}
+        use_auth_provider: true # This configures the necessary client-go authentication plugin automatically
 
     - name: Deploy Service App Layer (Web App Update)
       run: |
@@ -57,6 +66,13 @@ jobs:
       with:
         method: kubeconfig
         kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
+
+    - name: Set up GKE Auth Plugin
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
+        location: ${{ secrets.GCP_REGION }}
+        use_auth_provider: true
 
     - name: Deploy Ingress Routing Layer
       run: |
