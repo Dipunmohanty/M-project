@@ -52,7 +52,7 @@ jobs:
         cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
         location: ${{ secrets.GCP_REGION }}
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        use_auth_provider: true 
+        use_auth_provider: false
 
     # 3. Deploy App Layer
     - name: Deploy Service App Layer (Web App Update)
@@ -61,7 +61,7 @@ jobs:
         kubectl rollout restart deployment/nginx-deployment
 
   deploy-ingress:
-    needs: deploy-service 
+    needs: deploy-service
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -81,10 +81,9 @@ jobs:
         cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
         location: ${{ secrets.GCP_REGION }}
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        use_auth_provider: true
+        use_auth_provider: false
 
     # 3. Deploy Routing Layer
     - name: Deploy Ingress Routing Layer
-      run: 
-        export KUBECONFIG="$HOME/.kube/config"|
-        kubectl apply -f k8s-ingress.yml 
+      run:
+        kubectl apply -f k8s-ingress.yml
