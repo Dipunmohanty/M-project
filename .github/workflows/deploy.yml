@@ -29,8 +29,8 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/M-project:latest
-          ${{ secrets.DOCKERHUB_USERNAME }}/M-project:${{ github.sha }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/m-project:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/m-project:${{ github.sha }}
 
   deploy-service:
     needs: build-and-push-web-image
