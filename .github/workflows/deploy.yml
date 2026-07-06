@@ -4,7 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-# ⚠️ CRUCIAL: Gives the runner permission to exchange tokens with Google Cloud keylessly
 permissions:
   contents: read
   id-token: write
@@ -39,21 +38,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 1. KEYLESS OIDC AUTHENTICATION: Exchanges temporary tokens with your Workload Pool
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-    # 2. Set up Kubeconfig Context for GKE
     - name: Set up Kubeconfig Context
       uses: azure/k8s-set-context@v4
       with:
         method: kubeconfig
         kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
 
-    # 3. Automatically inject the missing gke-gcloud-auth-plugin tool into the runner
     - name: Set up GKE Auth Plugin
       uses: google-github-actions/get-gke-credentials@v2
       with:
@@ -62,8 +58,9 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         use_auth_provider: true 
 
-    # 4. Apply Kubernetes Manifests and restart the pods to grab the fresh Docker image
     - name: Deploy Service App Layer (Web App Update)
+      env:
+        USE_GKE_GCLOUD_AUTH_PLUGIN: "true" # <-- Forces kubectl to bypass the old gcp block
       run: |
         kubectl apply -f k8s-service.yml
         kubectl rollout restart deployment/nginx-deployment
@@ -75,21 +72,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 1. Keyless Auth for the Ingress Stage
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-    # 2. Set up Kubeconfig Context
     - name: Set up Kubeconfig Context
       uses: azure/k8s-set-context@v4
       with:
         method: kubeconfig
         kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
 
-    # 3. Inject GKE Auth Plugin
     - name: Set up GKE Auth Plugin
       uses: google-github-actions/get-gke-credentials@v2
       with:
@@ -98,7 +92,8 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         use_auth_provider: true
 
-    # 4. Apply Routing Matrix
     - name: Deploy Ingress Routing Layer
+      env:
+        USE_GKE_GCLOUD_AUTH_PLUGIN: "true" # <-- Forces kubectl to bypass the old gcp block
       run: |
         kubectl apply -f k8s-ingress.yml
