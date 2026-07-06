@@ -85,5 +85,6 @@ jobs:
 
     # 3. Deploy Routing Layer
     - name: Deploy Ingress Routing Layer
-      run: |
+      run: 
+        export KUBECONFIG="$HOME/.kube/config"|
         kubectl apply -f k8s-ingress.yml 
