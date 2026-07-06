@@ -38,19 +38,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # 1. Keyless OIDC Authentication with Google Cloud
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-    - name: Set up Kubeconfig Context
-      uses: azure/k8s-set-context@v4
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
-
-    - name: Set up GKE Auth Plugin
+    # 2. Automatically generates a FRESH kubeconfig and sets up the modern gke-gcloud-auth-plugin
+    - name: Set up GKE Credentials
       uses: google-github-actions/get-gke-credentials@v2
       with:
         cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
@@ -58,9 +54,8 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         use_auth_provider: true 
 
+    # 3. Deploy App Layer
     - name: Deploy Service App Layer (Web App Update)
-      env:
-        USE_GKE_GCLOUD_AUTH_PLUGIN: "true" # <-- Forces kubectl to bypass the old gcp block
       run: |
         kubectl apply -f k8s-service.yml
         kubectl rollout restart deployment/nginx-deployment
@@ -72,19 +67,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # 1. Keyless Auth
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-    - name: Set up Kubeconfig Context
-      uses: azure/k8s-set-context@v4
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
-
-    - name: Set up GKE Auth Plugin
+    # 2. Generate Fresh Kubeconfig
+    - name: Set up GKE Credentials
       uses: google-github-actions/get-gke-credentials@v2
       with:
         cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
@@ -92,8 +83,7 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         use_auth_provider: true
 
+    # 3. Deploy Routing Layer
     - name: Deploy Ingress Routing Layer
-      env:
-        USE_GKE_GCLOUD_AUTH_PLUGIN: "true" # <-- Forces kubectl to bypass the old gcp block
       run: |
-        kubectl apply -f k8s-ingress.yml
+        kubectl apply -f k8s-ingress.yml 
