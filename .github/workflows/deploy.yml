@@ -6,11 +6,42 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
-  build-and-push-web-image:
+  quality-gates:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build and smoke-test website image
+      run: bash .github/scripts/verify-image.sh m-project:ci
+
+    - name: Scan repository for security and configuration issues
+      uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
+      with:
+        scan-type: fs
+        scan-ref: .
+        scanners: vuln,secret,misconfig
+        severity: CRITICAL,HIGH
+        exit-code: "1"
+
+    - name: Scan website image for vulnerabilities
+      uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
+      with:
+        scan-type: image
+        image-ref: m-project:ci
+        scanners: vuln
+        severity: CRITICAL,HIGH
+        exit-code: "1"
+
+  build-and-push-web-image:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -34,6 +65,9 @@ jobs:
   deploy-service:
     needs: build-and-push-web-image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -63,6 +97,9 @@ jobs:
   deploy-ingress:
     needs: deploy-service
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
