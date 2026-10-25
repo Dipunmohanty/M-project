@@ -1,0 +1,7 @@
+root = true
+
+[*.env*]
+end_of_line = lf
+
+[*.{md,yml,sh}]
+end_of_line = lf
